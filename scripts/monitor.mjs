@@ -70,6 +70,12 @@ async function probe(c) {
     if (r.ok) break;
     if (attempt < 3) await sleep(15000);
   }
+  // A single slow response is usually a cold connection; re-probe once and
+  // keep the faster result before calling the component degraded.
+  if (r.ok && r.ms > config.degradedMs) {
+    const again = await probeOnce(c);
+    if (again.ok && again.ms < r.ms) r = again;
+  }
   const s = !r.ok ? "down" : r.ms > config.degradedMs ? "degraded" : "up";
   return { ...r, s };
 }
