@@ -1,0 +1,74 @@
+# Probes tasklypro.app every 5 minutes, records history to the `data` branch
+# (read by the status page), opens/closes the automatic incident issue, and
+# emails ALERT_EMAIL on down/up transitions.
+#
+# Issue and comment events re-run it in "incidents" mode so a manual incident
+# or update you post shows on the status page within a minute.
+name: Monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      test_email:
+        description: "Send a test email now"
+        type: boolean
+        default: false
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled, deleted]
+  issue_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+env:
+  ALERT_EMAIL: mohd.itc4@gmail.com
+  SMTP_URL: smtps://mail.tasklypro.app:465
+  SMTP_USER: info@tasklypro.app
+  STATUS_PAGE_URL: https://status.tasklypro.app
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch current data
+        run: |
+          mkdir -p data
+          if git fetch --depth=1 origin data 2>/dev/null; then
+            git show FETCH_HEAD:status.json > data/status.json || true
+          fi
+
+      - name: Run monitor
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          TEST_EMAIL: ${{ inputs.test_email }}
+          MODE: ${{ (github.event_name == 'issues' || github.event_name == 'issue_comment') && 'incidents' || 'probe' }}
+          DATA_DIR: data
+        run: node scripts/monitor.mjs
+
+      - name: Publish data branch
+        run: |
+          # The data branch is a single orphan commit, force-pushed each run, so
+          # five-minute history never bloats the repository.
+          cd data
+          git init -q -b data
+          git config user.name "taskly-status[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add status.json
+          git commit -q -m "status $(date -u +%FT%TZ)"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data:data

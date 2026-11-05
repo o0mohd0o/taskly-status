@@ -1,0 +1,44 @@
+{
+  "site": "https://tasklypro.app",
+  "degradedMs": 5000,
+  "components": [
+    {
+      "id": "web",
+      "name": "Web app",
+      "description": "The Taskly web app at tasklypro.app/app",
+      "url": "https://tasklypro.app/app/",
+      "expect": 200
+    },
+    {
+      "id": "api",
+      "name": "API",
+      "description": "Sign-in, boards, issues, sprints and reports",
+      "url": "https://tasklypro.app/go/healthz",
+      "expect": 200,
+      "contains": "\"status\":\"ok\""
+    },
+    {
+      "id": "ipad",
+      "name": "iPad app sync",
+      "description": "Sync service used by the Taskly iPad app",
+      "url": "https://tasklypro.app/api/me",
+      "headers": { "Accept": "application/json" },
+      "expect": 401
+    },
+    {
+      "id": "mcp",
+      "name": "Claude integration (MCP)",
+      "description": "Taskly's MCP server for Claude and other AI assistants",
+      "url": "https://tasklypro.app/mcp/health",
+      "expect": 200,
+      "contains": "\"status\":\"ok\""
+    },
+    {
+      "id": "website",
+      "name": "Website",
+      "description": "tasklypro.app marketing site",
+      "url": "https://tasklypro.app/",
+      "expect": 200
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Taskly Status</title>
+  <meta name="description" content="Live status, uptime and incident history for Taskly — the web app, API, iPad sync and Claude integration." />
+  <meta name="theme-color" content="#F7F7F5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121216" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <a class="brand" href="https://tasklypro.app" aria-label="Taskly home">
+        <img src="favicon.svg" alt="" width="28" height="28" />
+        <span>Taskly</span><span class="brand-sub">Status</span>
+      </a>
+      <nav class="top-links">
+        <a href="https://tasklypro.app/app/">Open Taskly</a>
+        <a class="btn" href="mailto:info@tasklypro.app?subject=Taskly%20problem%20report">Report a problem</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="banner" class="banner is-loading" aria-live="polite">
+      <span class="banner-icon" aria-hidden="true"></span>
+      <div>
+        <h1 id="banner-title">Checking status…</h1>
+        <p id="banner-sub" class="banner-sub"></p>
+      </div>
+    </section>
+
+    <section id="active" class="active" hidden aria-label="Active incidents"></section>
+
+    <section class="card" aria-labelledby="components-h">
+      <div class="card-head">
+        <h2 id="components-h">System status</h2>
+        <p class="legend-note"><span id="range-label">Uptime over the past 90 days</span></p>
+      </div>
+      <ul id="components" class="components"></ul>
+      <div class="bar-legend" aria-hidden="true">
+        <span><i class="sw sw-good"></i>No downtime</span>
+        <span><i class="sw sw-warning"></i>Minor</span>
+        <span><i class="sw sw-serious"></i>Partial</span>
+        <span><i class="sw sw-critical"></i>Major outage</span>
+        <span><i class="sw sw-none"></i>No data</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="latency-h">
+      <div class="card-head">
+        <h2 id="latency-h">Response time</h2>
+        <p class="legend-note">Past 24 hours, checked every 5 minutes from outside our network</p>
+      </div>
+      <div id="latency-tabs" class="tabs" role="tablist" aria-label="Component"></div>
+      <div id="latency-stats" class="stats"></div>
+      <div id="latency-chart" class="chart"></div>
+    </section>
+
+    <section class="card" aria-labelledby="table-h">
+      <details>
+        <summary><h2 id="table-h">Uptime table</h2></summary>
+        <div class="table-wrap">
+          <table id="uptime-table">
+            <thead><tr><th scope="col">Component</th><th scope="col">24 hours</th><th scope="col">7 days</th><th scope="col">30 days</th><th scope="col">90 days</th><th scope="col">Avg response (24h)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section aria-labelledby="past-h" class="past">
+      <h2 id="past-h">Past incidents</h2>
+      <div id="past"></div>
+      <p class="history-link"><a id="history-link" href="https://github.com/o0mohd0o/taskly-status/issues?q=label%3Aincident">Full incident history →</a></p>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p id="updated">—</p>
+    <p>Checks run independently of Taskly's servers, so this page stays up during an outage.</p>
+  </footer>
+
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
